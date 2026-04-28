@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Greenhouse Church · Survey Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,700&display=swap');
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --dark:   #333333;
+  --cream:  #ddd9cc;
+  --text:   #f9f9e7;
+  --muted:  rgba(249,249,231,0.48);
+  --rule:   rgba(249,249,231,0.08);
+  --sage1:  #6b845f;
+  --sage2:  #9cb485;
+  --mint:   #dae7e2;
+  --mint2:  #b2d0c6;
+  --mint3:  #8aaf9f;
+  --dark-text: #2a2a24;
+  --dark-muted: rgba(42,42,36,0.52);
+}
+
+body {
+  background: #222;
+  font-family: "DM Sans", sans-serif;
+  width: 1000px;
+  margin: 0 auto;
+}
+
+/* ────────── SECTION WRAPPERS ────────── */
+.s-dark  { background: var(--dark); }
+.s-cream { background: var(--cream); }
+
+/* ────────── HEADER ────────── */
+.hdr { padding: 40px 48px 36px; border-top: 2px solid var(--sage2); }
+.hdr-eyebrow {
+  font-size: 8.5px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--sage2); margin-bottom: 10px;
+}
+.hdr-title {
+  font-size: 44px; font-weight: 700; color: var(--text);
+  letter-spacing: -1px; margin-bottom: 28px; line-height: 1;
+}
+.hdr-stats {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  border-top: 1px solid var(--rule);
+  padding-top: 22px; margin-bottom: 26px;
+}
+.hs-item { padding-right: 20px; border-right: 1px solid var(--rule); }
+.hs-item:last-child { border-right: none; }
+.hs-item + .hs-item { padding-left: 20px; }
+.hs-num {
+  font-size: 38px; font-weight: 700; color: var(--sage2);
+  line-height: 1; letter-spacing: -1.5px; margin-bottom: 5px;
+  display: block;
+}
+.hs-label {
+  font-size: 11px; font-weight: 300; color: rgba(249,249,231,0.65); line-height: 1.4;
+  display: block;
+}
+.hdr-body {
+  font-size: 13.5px; font-weight: 300; color: rgba(249,249,231,0.78); line-height: 1.8;
+  border-top: 1px solid var(--rule); padding-top: 18px;
+}
+
+/* ────────── SECTION LABEL ────────── */
+.sec-label {
+  font-size: 56px; font-weight: 700; font-style: italic;
+  line-height: 1; letter-spacing: -2px;
+  padding: 36px 48px 0;
+}
+.sl-dark  { color: rgba(249,249,231,0.07); }
+.sl-cream { color: rgba(42,42,36,0.1); }
+
+/* ────────── FAITH SECTION ────────── */
+.faith-inner {
+  padding: 20px 48px 28px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; align-items: stretch;
+}
+
+/* dot card — reused in both faith and outreach */
+.dot-card {
+  background: var(--dark); padding: 26px 26px 22px;
+  position: relative;
+}
+.dot-card::before {
+  content: ""; position: absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, var(--sage1), var(--sage2), var(--mint));
+}
+.dc-eyebrow {
+  font-size: 7.5px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--sage2); margin-bottom: 16px;
+}
+.dc-layout {
+  display: grid; grid-template-columns: 155px 1fr;
+  gap: 16px; align-items: start;
+}
+.dc-title {
+  font-size: 26px; font-weight: 700; color: #fff;
+  line-height: 1.05; letter-spacing: -0.5px; margin-bottom: 18px;
+}
+.dc-callout {
+  padding-bottom: 14px; margin-bottom: 14px;
+  border-bottom: 1px solid rgba(249,249,231,0.07);
+}
+.dc-callout:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.dc-big { font-size: 52px; font-weight: 700; line-height: 0.9; letter-spacing: -2px; }
+.dc-big.sage { color: var(--sage2); }
+.dc-big.mint { color: var(--mint); }
+.dc-sub {
+  font-size: 11px; font-weight: 300; line-height: 1.55;
+  color: rgba(249,249,231,0.68); margin-top: 8px;
+}
+.dc-dot-meta {
+  font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(249,249,231,0.2); margin-bottom: 8px;
+}
+.dc-dot-grid { display: grid; grid-template-columns: repeat(10,1fr); gap: 4px; }
+.dc-dot {
+  aspect-ratio:1; border-radius:50%;
+  opacity:0; animation: pop .18s ease forwards;
+}
+@keyframes pop {
+  from { opacity:0; transform:scale(0.3); }
+  to   { opacity:1; transform:scale(1); }
+}
+.dc-legend { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(249,249,231,0.07); }
+.dc-legend-title {
+  font-size: 7px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(249,249,231,0.2); margin-bottom: 8px;
+}
+.dc-legend-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px 10px; }
+.dc-li { display:flex; align-items:flex-start; gap:6px; }
+.dc-li-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+.dc-li-pct { font-size:11px; font-weight:700; color:#f9f9e7; line-height:1; display:block; margin-bottom:1px; }
+.dc-li-label { font-size:7.5px; font-weight:300; color:rgba(249,249,231,0.38); line-height:1.3; display:block; }
+
+/* 93% tile */
+.faith-right {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.ninety-tile {
+  background: rgba(249,249,231,0.04);
+  padding: 28px 32px 24px;
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 440px;
+}
+.nt-label {
+  font-size: 16px; font-weight: 400; color: var(--text);
+  line-height: 1.35; margin-bottom: 0;
+}
+.nt-center {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 0;
+}
+.nt-num {
+  font-size: 180px; font-weight: 700; color: var(--sage2);
+  line-height: 0.88; letter-spacing: -6px;
+}
+.nt-pct {
+  font-size: 72px; font-weight: 300; color: var(--sage2);
+  letter-spacing: -2px; align-self: flex-end; margin-bottom: 18px;
+}
+.nt-subs {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+.nt-sub {
+  display: flex; flex-direction: column; gap: 4px;
+  padding-right: 20px; border-right: 1px solid var(--rule);
+}
+.nt-sub:last-child { border-right: none; padding-right: 0; padding-left: 20px; }
+.nt-sub-num { font-size: 22px; font-weight: 600; color: var(--mint2); letter-spacing: -0.5px; }
+.nt-sub-label { font-size: 11px; font-weight: 300; color: rgba(249,249,231,0.65); line-height: 1.4; }
+
+.faith-note {
+  margin: 0; padding: 24px 80px 36px;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+}
+.fn-text {
+  font-size: 13.5px; font-weight: 300; font-style: italic;
+  color: rgba(249,249,231,0.75); line-height: 1.8;
+  max-width: 820px; margin: 0 auto;
+}
+
+/* ────────── OUTREACH SECTION ────────── */
+.outreach-inner {
+  padding: 20px 48px 44px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; align-items: start;
+}
+.outreach-right {
+  padding: 28px 0 0;
+}
+.or-implication {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--sage2); margin-bottom: 10px;
+}
+.or-headline {
+  font-size: 16px; font-weight: 600; color: var(--text);
+  line-height: 1.4; margin-bottom: 18px;
+}
+.or-body {
+  font-size: 13.5px; font-weight: 300; color: rgba(249,249,231,0.78); line-height: 1.75;
+  margin-bottom: 20px;
+}
+.or-ops-title {
+  font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px;
+}
+.or-list { display:flex; flex-direction:column; gap:10px; }
+.or-item { display:flex; gap:10px; }
+.or-n { font-size:13px; font-weight:700; color:var(--sage2); flex-shrink:0; width:18px; margin-top:1px; }
+.or-text {
+  font-size: 13.5px; font-weight: 300; color: rgba(249,249,231,0.78);
+  line-height: 1.65;
+}
+.or-text strong { color: var(--text); font-weight: 600; }
+
+/* ────────── COMMUNITY SECTION ────────── */
+.community-inner {
+  padding: 20px 48px 44px;
+  display: grid; grid-template-columns: 50% 50%;
+  gap: 0; align-items: start;
+}
+.comm-left { padding-right: 36px; }
+.comm-tagline {
+  font-size: 14px; font-weight: 300; font-style: italic;
+  color: var(--muted); margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+.comm-big {
+  font-size: clamp(100px, 13.5vw, 155px); font-weight: 700; color: var(--sage2);
+  line-height: 0.9; letter-spacing: -4px; display: block;
+  white-space: nowrap;
+}
+.comm-right {
+  padding-top: 8px;
+}
+.comm-body {
+  font-size: 13.5px; font-weight: 300; color: rgba(249,249,231,0.78);
+  line-height: 1.75; margin-bottom: 14px;
+}
+.comm-body + .comm-body { margin-top: 0; }
+.comm-age-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-top: 18px;
+}
+.ca-box { padding: 12px 14px; background: rgba(249,249,231,0.03); }
+.ca-label {
+  font-size: 7.5px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(249,249,231,0.22); margin-bottom: 5px;
+}
+.ca-val {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.3px;
+  margin-bottom: 5px; line-height: 1;
+}
+.ca-note {
+  font-size: 11px; font-weight: 300; color: rgba(249,249,231,0.65); line-height: 1.5;
+}
+
+/* ────────── ASKS SECTION ────────── */
+.asks-inner { padding: 28px 48px 40px; }
+.asks-eyebrow {
+  font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(249,249,231,0.26); margin-bottom: 10px;
+}
+.asks-title {
+  font-size: 22px; font-weight: 700; color: #fff;
+  letter-spacing: -0.3px; margin-bottom: 24px;
+}
+.asks-list { display: flex; flex-direction: column; gap: 2px; }
+.ask-item {
+  display: grid;
+  grid-template-columns: 30px 1fr 80px;
+  align-items: center; gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.ask-item:last-child { border-bottom: none; }
+.ask-num {
+  font-size: 12px; font-weight: 700; color: var(--sage2);
+}
+.ask-label {
+  font-size: 13.5px; font-weight: 400;
+  color: rgba(249,249,231,0.78); line-height: 1.5;
+}
+.ask-bar-wrap {
+  height: 4px; background: rgba(249,249,231,0.07);
+  border-radius: 2px; overflow: hidden;
+}
+.ask-bar { height: 100%; border-radius: 2px; }
+
+/* ────────── TAKEAWAYS SECTION ────────── */
+.takeaways-inner { padding: 32px 48px 48px; }
+.tw-title {
+  font-size: 16px; font-weight: 700; color: #fff;
+  margin-bottom: 32px; letter-spacing: -0.2px;
+}
+.tw-item { margin-bottom: 30px; padding-bottom: 28px; border-bottom: 1px solid var(--rule); }
+.tw-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.tw-headline {
+  font-size: 34px; font-weight: 700; color: var(--sage2);
+  line-height: 1.05; letter-spacing: -1.5px; margin-bottom: 10px;
+}
+.tw-body {
+  font-size: 13.5px; font-weight: 300; color: rgba(249,249,231,0.78);
+  line-height: 1.75; max-width: 680px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="s-dark hdr">
+  <div class="hdr-eyebrow">Greenhouse Church &nbsp;·&nbsp; Survey Analysis &nbsp;·&nbsp; 2024</div>
+  <div class="hdr-title">Congregant Survey Results</div>
+  <div class="hdr-stats">
+    <div class="hs-item">
+      <span class="hs-num">278</span>
+      <span class="hs-label">total<br>responses</span>
+    </div>
+    <div class="hs-item">
+      <span class="hs-num">60%</span>
+      <span class="hs-label">attend<br>weekly</span>
+    </div>
+    <div class="hs-item">
+      <span class="hs-num">55%</span>
+      <span class="hs-label">bachelor's<br>degree or higher</span>
+    </div>
+    <div class="hs-item">
+      <span class="hs-num">69%</span>
+      <span class="hs-label">female<br>respondents</span>
+    </div>
+    <div class="hs-item">
+      <span class="hs-num">64%</span>
+      <span class="hs-label">married</span>
+    </div>
+  </div>
+  <div class="hdr-body">
+    Overall, respondents are highly educated and married. 65% were white, while 23% were Black or African American. 5% chose two or more races. 60% reported attending every week, 26% answered two or three times a month, and 8% said monthly or less. Respondents tend to overestimate how much they actually attend, but this information is still helpful in understanding how they see themselves and their relationship to the church.
+    <br><br>
+    The tenure at Greenhouse was evenly distributed: 26% have attended 10+ years, 26% have been there 1–3 years, and 21% are in the 7–10 year group.
+  </div>
+</div>
+
+<!-- ═══ FAITH ═══ -->
+<div class="s-dark">
+  <div class="sec-label sl-dark">faith</div>
+  <div class="faith-inner">
+    <!-- dot card -->
+    <div class="dot-card" id="bgCard">
+      <div class="dc-eyebrow">Greenhouse Church &nbsp;·&nbsp; Congregant Background Survey</div>
+      <div class="dc-layout">
+        <div>
+          <div class="dc-title">Previous<br>Church<br>Background</div>
+          <div class="dc-callout">
+            <div class="dc-big sage">75%</div>
+            <div class="dc-sub">came from an active Protestant church — locally or from a previous city</div>
+          </div>
+          <div class="dc-callout">
+            <div class="dc-big mint">11%</div>
+            <div class="dc-sub">had walked away from church</div>
+          </div>
+        </div>
+        <div>
+          <div class="dc-dot-meta">Each dot = 1%</div>
+          <div class="dc-dot-grid" id="bgGrid"></div>
+        </div>
+      </div>
+      <div class="dc-legend">
+        <div class="dc-legend-title">Breakdown by Background</div>
+        <div class="dc-legend-grid" id="bgLegend"></div>
+      </div>
+    </div>
+
+    <!-- 93% tile -->
+    <div class="faith-right">
+      <div class="ninety-tile">
+        <div class="nt-label">Were Christians<br>before attending Greenhouse.</div>
+        <div class="nt-center">
+          <span class="nt-num">93</span><span class="nt-pct">%</span>
+        </div>
+        <div class="nt-subs">
+          <div class="nt-sub">
+            <span class="nt-sub-num">3.2%</span>
+            <span class="nt-sub-label">came to faith at GH</span>
+          </div>
+          <div class="nt-sub">
+            <span class="nt-sub-num">3.2%</span>
+            <span class="nt-sub-label">returned to faith at GH</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="faith-note">
+    <div class="fn-text">This matters for messaging and strategy. This data reinforces the psychographic insights from the Insights Report, indicating that the biggest opportunity for growth lies among Christians who have left the church because they cannot find a church that's relevant to their life.</div>
+  </div>
+</div>
+
+<!-- ═══ OUTREACH ═══ -->
+<div class="s-dark">
+  <div class="sec-label sl-dark">outreach</div>
+  <div class="outreach-inner">
+    <!-- dot card -->
+    <div class="dot-card" id="foundCard">
+      <div class="dc-eyebrow">Greenhouse Church &nbsp;·&nbsp; Congregant Background Survey</div>
+      <div class="dc-layout">
+        <div>
+          <div class="dc-title">Found<br>Greenhouse<br>Through</div>
+          <div class="dc-callout">
+            <div class="dc-big sage">75%</div>
+            <div class="dc-sub">were brought by a friend or family member</div>
+          </div>
+          <div class="dc-callout">
+            <div class="dc-big mint">17%</div>
+            <div class="dc-sub">found us by driving by or searching online</div>
+          </div>
+        </div>
+        <div>
+          <div class="dc-dot-meta">Each dot = 1%</div>
+          <div class="dc-dot-grid" id="foundGrid"></div>
+        </div>
+      </div>
+      <div class="dc-legend">
+        <div class="dc-legend-title">Breakdown by Source</div>
+        <div class="dc-legend-grid" id="foundLegend"></div>
+      </div>
+    </div>
+
+    <!-- implication -->
+    <div class="outreach-right">
+      <div class="or-implication">Implication</div>
+      <div class="or-headline">Word of mouth has essentially been the entire growth engine.</div>
+      <div class="or-body">Very few people are finding Greenhouse through social media or Google — which means the digital front door is wide open.</div>
+      <div class="or-ops-title">The opportunities are two-fold:</div>
+      <div class="or-list">
+        <div class="or-item">
+          <span class="or-n">1.</span>
+          <span class="or-text">Continue to lean into word of mouth and invitations.</span>
+        </div>
+        <div class="or-item">
+          <span class="or-n">2.</span>
+          <span class="or-text">The fact that very few people are finding Greenhouse through social media or SEO strategies is a <strong>significant opportunity and a new pathway to fuel Greenhouse's growth.</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMMUNITY ═══ -->
+<div class="s-dark" style="border-top:1px solid var(--rule);">
+  <div class="sec-label sl-dark">community</div>
+  <div class="community-inner">
+    <div class="comm-left">
+      <div class="comm-tagline">report feeling isolated</div>
+      <span class="comm-big">1 in 3</span>
+    </div>
+    <div class="comm-right">
+      <div class="comm-body">Respondents 25–54 expressed difficulty finding community. This group said they were very likely to engage more if more community events were added. Interestingly, people who completed Activate did not score meaningfully higher on community/friendship than those who didn't.</div>
+      <div class="comm-body">The 25–54 cohort is the most motivated but the least satisfied with what's available. They have the highest event desire, solid Activate completion, and strong attendance — but community scores drag. They're doing everything "right" by the church's system, and still feel somewhat disconnected.</div>
+      <div class="comm-age-grid">
+        <div class="ca-box">
+          <div class="ca-label">Ages 18–24</div>
+          <div class="ca-val" style="color:var(--sage2);">Finding community: Easy</div>
+          <div class="ca-note">78.9% weekly attendance. New and engaged, not yet rooted.</div>
+        </div>
+        <div class="ca-box">
+          <div class="ca-label">Ages 25–44</div>
+          <div class="ca-val" style="color:var(--mint);">High desire for events</div>
+          <div class="ca-note">Highest event desire. Community scores lag despite strong program engagement.</div>
+        </div>
+        <div class="ca-box">
+          <div class="ca-label">Ages 45–54</div>
+          <div class="ca-val" style="color:var(--mint2);">High trial, high dropout</div>
+          <div class="ca-note">Highest MC trial rate. Highest MC dropout. Lowest friendship rate.</div>
+        </div>
+        <div class="ca-box">
+          <div class="ca-label">Ages 65+</div>
+          <div class="ca-val" style="color:var(--mint3);">Thriving</div>
+          <div class="ca-note">Highest MC membership rate. High friendship score.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ASKS ═══ -->
+<div class="s-dark" style="border-top:1px solid var(--rule);">
+  <div class="asks-inner">
+    <div class="asks-eyebrow">140 Open-Ended Responses</div>
+    <div class="asks-title">What People Are Asking For</div>
+    <div class="asks-list">
+      <div class="ask-item">
+        <span class="ask-num">01</span>
+        <span class="ask-label">Gender-specific ministry — women's retreats, Bible studies, men's events</span>
+        <div class="ask-bar-wrap"><div class="ask-bar" style="width:90%;background:#6b845f;"></div></div>
+      </div>
+      <div class="ask-item">
+        <span class="ask-num">02</span>
+        <span class="ask-label">Marriage &amp; couples retreats — "Marriage in May" mourned by multiple respondents</span>
+        <div class="ask-bar-wrap"><div class="ask-bar" style="width:72%;background:#7a9a6e;"></div></div>
+      </div>
+      <div class="ask-item">
+        <span class="ask-num">03</span>
+        <span class="ask-label">Singles ministry for all ages — 20s, 40s, 50s, 60s all explicitly requested it</span>
+        <div class="ask-bar-wrap"><div class="ask-bar" style="width:58%;background:#9cb485;"></div></div>
+      </div>
+      <div class="ask-item">
+        <span class="ask-num">04</span>
+        <span class="ask-label">Microchurch restructure — forced multiplication, no safety net when it fails</span>
+        <div class="ask-bar-wrap"><div class="ask-bar" style="width:44%;background:#b2d0c6;"></div></div>
+      </div>
+      <div class="ask-item">
+        <span class="ask-num">05</span>
+        <span class="ask-label">Family ministry — life-stage microchurches, childcare support for couples</span>
+        <div class="ask-bar-wrap"><div class="ask-bar" style="width:32%;background:#c6ddd5;"></div></div>
+      </div>
+      <div class="ask-item">
+        <span class="ask-num">06</span>
+        <span class="ask-label">Communication upgrade — events calendar, email follow-up, staff responsiveness</span>
+        <div class="ask-bar-wrap"><div class="ask-bar" style="width:22%;background:#dae7e2;"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAKEAWAYS ═══ -->
+<div class="s-dark" style="border-top:1px solid var(--rule);">
+  <div class="takeaways-inner">
+    <div class="tw-title">Key Strategic Takeaways</div>
+    <div class="tw-item">
+      <div class="tw-headline">The friendship gap is real.</div>
+      <div class="tw-body">The microchurch model has worked for some, but many have not found the community they hoped for — with many giving up. They want more connection opportunities.</div>
+    </div>
+    <div class="tw-item">
+      <div class="tw-headline">The opportunity for growth through communication is significant.</div>
+      <div class="tw-body">Word of mouth has essentially been the entire growth engine. Communication systems need a real upgrade — this came up too consistently to dismiss. It's not about social media strategy; it's about basic responsiveness, a functional events calendar, and following up with people who reach out.</div>
+    </div>
+    <div class="tw-item">
+      <div class="tw-headline">A system problem, not a people problem.</div>
+      <div class="tw-body">The 25–54 cohort is doing everything right by the church's system — attending, completing Activate, joining Microchurch — and still feel disconnected. That's not on them.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const bgCats = [
+  { label:"Diff. Protestant locally",  pct:"42%",   count:42, color:"#6b845f" },
+  { label:"Protestant prev. location", pct:"33%",   count:33, color:"#96b57f" },
+  { label:"Lapsed Protestant",         pct:"10.5%", count:11, color:"#dae7e2" },
+  { label:"Never attended as adult",   pct:"5.7%",  count:6,  color:"#b2d0c6" },
+  { label:"Grew up at Greenhouse",     pct:"2.6%",  count:3,  color:"#8aaf9f" },
+  { label:"Attended Catholic church",  pct:"2.6%",  count:3,  color:"#7aa298" },
+  { label:"Non-Christian faith",       pct:"1.3%",  count:1,  color:"#c6ddd5" },
+  { label:"Lapsed Catholic",           pct:"1.3%",  count:1,  color:"#a9c5bc" },
+];
+const foundCats = [
+  { label:"Friends or family",         pct:"75%",  count:75, color:"#6b845f" },
+  { label:"Google or social media",    pct:"9%",   count:9,  color:"#dae7e2" },
+  { label:"Drove by",                  pct:"8%",   count:8,  color:"#b2d0c6" },
+  { label:"AG connection",             pct:"4%",   count:4,  color:"#8aaf9f" },
+  { label:"Other",                     pct:"4%",   count:4,  color:"#a9c5bc" },
+];
+
+function buildGrid(cats, gridId, legendId, offset) {
+  const dots = [];
+  cats.forEach(c => { for(let i=0;i<c.count;i++) dots.push(c); });
+  const grid = document.getElementById(gridId);
+  dots.forEach((d,i) => {
+    const el = document.createElement("div");
+    el.className = "dc-dot";
+    el.style.background = d.color;
+    el.style.animationDelay = (offset + i) * 0.006 + "s";
+    el.title = d.label + " · " + d.pct;
+    grid.appendChild(el);
+  });
+  const leg = document.getElementById(legendId);
+  cats.forEach(c => {
+    const item = document.createElement("div");
+    item.className = "dc-li";
+    item.innerHTML = '<div class="dc-li-dot" style="background:' + c.color + '"></div><div><span class="dc-li-pct">' + c.pct + '</span><span class="dc-li-label">' + c.label + '</span></div>';
+    leg.appendChild(item);
+  });
+}
+buildGrid(bgCats,    "bgGrid",    "bgLegend",    0);
+buildGrid(foundCats, "foundGrid", "foundLegend", 110);
+</script>
+</body>
+</html>
